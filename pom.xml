@@ -8,7 +8,7 @@
 		<version>2.7.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>br.com</groupId>
+	<groupId>br.com.sicredi.votacao</groupId>
 	<artifactId>votacao</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>votacao</name>
@@ -41,9 +41,14 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<scope>runtime</scope>
+			<scope>teste</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
