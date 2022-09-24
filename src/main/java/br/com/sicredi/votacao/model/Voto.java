@@ -4,11 +4,15 @@ import java.math.BigInteger;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,14 +21,17 @@ import lombok.NoArgsConstructor;
 @Data
 @Entity(name = "VOTO")
 @Table(name = "VOTO")
-@SequenceGenerator(name = "SQ_VOTO", sequenceName = "sequence_voto", allocationSize = 1)
+
 public class Voto {
 	@Id
+	@SequenceGenerator(name = "SQ_VOTO", sequenceName = "sequence_voto", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_VOTO")
     private BigInteger id;
 
-    @Column(name = "ID_PAUTA")
-    private BigInteger idPauta;
+	@NotNull(message = "Necessário informar a Pauta para o voto.")
+    @ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "PAUTA")
+    private Pauta pauta;
 
     @Column(name = "NUM_CPF")
     private Long numeroCpf;

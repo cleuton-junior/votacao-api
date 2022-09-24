@@ -1,6 +1,6 @@
 package br.com.sicredi.votacao.model;
 
-import java.math.BigInteger;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import javax.persistence.Column;
@@ -11,19 +11,25 @@ import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
 @Data
-@Entity(name = "PAUTA")
+@Entity
+@EqualsAndHashCode
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "PAUTA")
-@SequenceGenerator(name = "SQ_PAUTA", sequenceName = "sequence_pauta", allocationSize = 1)
-public class Pauta {
+public class Pauta implements Serializable{
 
 	@Id
+	@SequenceGenerator(name = "SQ_PAUTA", sequenceName = "sequence_pauta", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_PAUTA")
-    private BigInteger id;
+    private Long id;
 
     @Column(name = "DES_PAUTA", nullable = false, length = 50)
     private String descricaoPauta;

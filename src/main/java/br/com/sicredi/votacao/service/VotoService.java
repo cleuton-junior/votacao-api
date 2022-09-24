@@ -1,6 +1,8 @@
 package br.com.sicredi.votacao.service;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import br.com.sicredi.votacao.config.RestTemplateConfig;
 import br.com.sicredi.votacao.dto.StatusCpfDTO;
 import br.com.sicredi.votacao.dto.VotoDTO;
+import br.com.sicredi.votacao.exception.InvalidCpfException;
 import br.com.sicredi.votacao.model.Voto;
 import br.com.sicredi.votacao.repository.VotoRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -37,12 +40,10 @@ public class VotoService {
 	private String urlCpfValidator = "";
 
 	public Voto create(VotoDTO votoDto) throws Exception {
-        log.debug("Inicio criar voto.");
-               
+        log.debug("Inicio criar voto.");              
         verificaCpfVoto(votoDto);
-
         Voto voto = modelMapper.map(votoDto, Voto.class);
-        log.debug("Gerando voto idPauta:[" + voto.getIdPauta() + "] voto=[" + voto.getIndicadorVotoSim()+"]");
+        log.debug("Fim criar voto."); 
         return votoRepository.save(voto);
     }
     
@@ -52,10 +53,11 @@ public class VotoService {
 		ResponseEntity<StatusCpfDTO> cpfValidation = validaCpf(votoDto);
 		if (HttpStatus.OK.equals(cpfValidation.getStatusCode())) {
 			if (CPF_UNABLE_TO_VOTE.equalsIgnoreCase(cpfValidation.getBody().getStatus())) {
-				throw new Exception();
+				log.debug("CPF: ", cpfValidation.getBody().getStatus());
 			}
 		} else {
-			throw new Exception();
+			log.debug("CPF: ", cpfValidation.getBody().getStatus());
+			throw new InvalidCpfException();
 		}
 
 		log.debug("Fim da Validacao externa do CPF...");
@@ -67,5 +69,10 @@ public class VotoService {
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 		return restTemplate.exchange(urlCpfValidator.concat("/").concat(voto.getNumeroCpf().toString()), HttpMethod.GET, entity,
 				StatusCpfDTO.class);
+	}
+    
+    void deleteByPautaId(Long id) {
+		Optional<List<Voto>> votos = votoRepository.findByPautaId(id);
+		votos.ifPresent(voto -> voto.forEach(votoRepository::delete));
 	}
 }

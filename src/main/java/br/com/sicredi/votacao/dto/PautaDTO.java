@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class PautaDTO {
-    private BigInteger id;
+    private Long id;
     private String descricaoPauta;
     private LocalDateTime dtVotacaoFim;
 
