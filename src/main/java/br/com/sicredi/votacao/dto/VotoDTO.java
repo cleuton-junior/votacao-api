@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class VotoDTO {
 	
     private Long idPauta;
-    private Long numeroCpf;
+    private String numeroCpf;
     private Integer indicadorVotoSim;
 
 }

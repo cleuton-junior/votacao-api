@@ -19,6 +19,7 @@ import br.com.sicredi.votacao.config.RestTemplateConfig;
 import br.com.sicredi.votacao.dto.StatusCpfDTO;
 import br.com.sicredi.votacao.dto.VotoDTO;
 import br.com.sicredi.votacao.exception.InvalidCpfException;
+import br.com.sicredi.votacao.exception.VotoExistsException;
 import br.com.sicredi.votacao.model.Voto;
 import br.com.sicredi.votacao.repository.VotoRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,7 @@ public class VotoService {
 	public Voto create(VotoDTO votoDto) throws Exception {
         log.debug("Inicio criar voto.");              
         verificaCpfVoto(votoDto);
+        votoAlreadyExists(votoDto);
         Voto voto = modelMapper.map(votoDto, Voto.class);
         log.debug("Fim criar voto."); 
         return votoRepository.save(voto);
@@ -69,6 +71,23 @@ public class VotoService {
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 		return restTemplate.exchange(urlCpfValidator.concat("/").concat(voto.getNumeroCpf().toString()), HttpMethod.GET, entity,
 				StatusCpfDTO.class);
+	}
+    
+	protected void votoAlreadyExists(VotoDTO votoDto) {
+		Optional<Voto> votoByCpfAndPauta = votoRepository.findByNumeroCpfAndPautaId(votoDto.getNumeroCpf(), votoDto.getIdPauta());
+
+		if (votoByCpfAndPauta.isPresent()) {
+			throw new VotoExistsException();
+		}
+	}
+	
+	public ResponseEntity delete(Long id) throws Exception {
+		Optional<Voto> votoById = votoRepository.findById(id);
+		if (!votoById.isPresent()) {
+			return new ResponseEntity<>("Voto não encontrado", HttpStatus.NOT_FOUND);
+		}
+		votoRepository.delete(votoById.get());
+		return new ResponseEntity<>(null, HttpStatus.OK);
 	}
     
     void deleteByPautaId(Long id) {

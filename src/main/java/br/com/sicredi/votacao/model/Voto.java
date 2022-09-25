@@ -26,7 +26,7 @@ public class Voto {
 	@Id
 	@SequenceGenerator(name = "SQ_VOTO", sequenceName = "sequence_voto", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_VOTO")
-    private BigInteger id;
+    private Long id;
 
 	@NotNull(message = "Necessário informar a Pauta para o voto.")
     @ManyToOne(fetch = FetchType.EAGER)
@@ -34,7 +34,7 @@ public class Voto {
     private Pauta pauta;
 
     @Column(name = "NUM_CPF")
-    private Long numeroCpf;
+    private String numeroCpf;
 
     @Column(name = "INDQ_VOTO_SIM")
     private Integer indicadorVotoSim;
