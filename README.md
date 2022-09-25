@@ -20,7 +20,7 @@
 ```
 http://localhost:8080/swagger-ui/index.html
 ```
-##Bônus 4
+## Bônus 4
 ### Como fazer versionamento da aplicação?
 
 Para introduzir uma nova versão de API é necessário subir o número da versão, dessa forma os clientes poderão continuar utilizando a versão antiga sem problemas e clientes novos podem utilizar a versão mais recente.

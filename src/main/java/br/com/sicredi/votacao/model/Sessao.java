@@ -1,18 +1,16 @@
 package br.com.sicredi.votacao.model;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,21 +24,23 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "VOTO")
-public class Voto implements Serializable{
-	@Id
-	@SequenceGenerator(name = "SQ_VOTO", sequenceName = "sq_voto", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_VOTO")
+@Table(name = "SESSAO")
+public class Sessao implements Serializable{
+
+    @Id
+    @SequenceGenerator(name = "SQ_SESSAO", sequenceName = "sq_sessao", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_SESSAO")
     private Long id;
 
-	@NotNull(message = "Necessário informar a Pauta para o voto.")
+    private LocalDateTime dataInicio;
+
+    private Long minutosValidade;
+
     @ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "PAUTA")
     private Pauta pauta;
 
-    @Column(name = "NUM_CPF")
-    private String numeroCpf;
-
-    @Column(name = "INDQ_VOTO_SIM")
-    private Boolean indicadorVotoSim;
+    public Sessao pauta(Pauta pauta) {
+        this.pauta = pauta;
+        return this;
+    }
 }

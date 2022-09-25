@@ -9,8 +9,9 @@ import lombok.NoArgsConstructor;
 @Data
 public class VotoDTO {
 	
+	private Long id;
     private Long idPauta;
     private String numeroCpf;
-    private Integer indicadorVotoSim;
+    private Boolean indicadorVotoSim;
 
 }

@@ -17,11 +17,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.sicredi.votacao.dto.PautaDTO;
+import br.com.sicredi.votacao.exception.PautaNotFoundException;
 import br.com.sicredi.votacao.model.Pauta;
 import br.com.sicredi.votacao.service.PautaService;
 import io.swagger.annotations.ApiOperation;
@@ -32,14 +32,11 @@ public class PautaResource {
 	
 	@Autowired
 	private PautaService pautaService;	
-	@Autowired
-    private ModelMapper modelMapper;
-	
-	
+		
 	@ApiOperation(value = "Criar Pauta")
     @PostMapping
-    public ResponseEntity criarPauta(@Valid @RequestBody Pauta pauta) throws URISyntaxException {
-        Pauta pautaCriada = pautaService.criar(pauta);
+    public ResponseEntity<?> criarPauta(@Valid @RequestBody PautaDTO pautaDTO) throws URISyntaxException {
+        Pauta pautaCriada = pautaService.criar(pautaDTO);
         return ResponseEntity.created(new URI(String.format("%d", pautaCriada.getId())))
                 .build();
     }
@@ -48,45 +45,30 @@ public class PautaResource {
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
     public List<PautaDTO> listarTodasPautas() {
-        return pautaService.listarPautas().stream()
-                .map(pauta -> modelMapper.map(pauta, PautaDTO.class))
-                .collect(Collectors.toList());
+        return pautaService.listarPautas();
     }
 
-	@ApiOperation(value = "Recuperar Pauta")
+	@ApiOperation(value = "Retorna Pauta")
     @GetMapping("/{id}")
-    @ResponseStatus(code = HttpStatus.OK)
-    public ResponseEntity recuperar(@PathVariable("id") Long id) {
+    public ResponseEntity<?> retornaPauta(@PathVariable("id") Long id) {
         try {
-            Pauta pauta = pautaService.recuperarPauta(id);
+            PautaDTO pauta = pautaService.retornaPauta(id);
             return ResponseEntity.ok(pauta);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
+        } catch (PautaNotFoundException e) {
+        	return new ResponseEntity<>(e.getCode(), e.getStatus());
         }
     }
-
-	@ApiOperation(value = "Abrir Pauta")
-    @PostMapping("/abrir/{id}")
-    @ResponseStatus(code = HttpStatus.OK)
-    public ResponseEntity abrirPauta(@PathVariable("id") Long idPauta,
-                               @RequestParam(defaultValue = "1", required = false)
-                               Integer qtdMinutos) {
-        pautaService.abrirPauta(idPauta, qtdMinutos);
-        return ResponseEntity.ok().build();
-    }
-    
-	@ApiOperation(value = "Delete Pauta")
-	@DeleteMapping("/{id}")
-	@ResponseStatus(code = HttpStatus.OK)
-	public void delete(@PathVariable Long id) {
-		pautaService.delete(id);
+	
+	@ApiOperation(value = "Excluir Pauta")
+	@DeleteMapping("v1/pautas/{id}")
+	public ResponseEntity<?> delete(@PathVariable Long id) {
+		try {
+			pautaService.delete(id);
+			return new ResponseEntity<>("Exclusão da pauta realizado com sucesso", HttpStatus.OK);
+		} catch (PautaNotFoundException e) {
+			return new ResponseEntity<>(e.getCode(), e.getStatus());
+		}
+		
 	}
-
-//    @PostMapping("/totais/{id}")
-//    public ResponseEntity fecharPauta(@PathVariable("id") BigInteger idPauta) {
-//        VotacaoDTO votacaoDto = pautaService.fecharPauta(idPauta);
-//        return ResponseEntity.ok(votacaoDto);
-//    }
-
 
 }

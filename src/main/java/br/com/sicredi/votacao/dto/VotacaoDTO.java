@@ -1,17 +1,19 @@
 package br.com.sicredi.votacao.dto;
 
-import lombok.AllArgsConstructor;
+import java.io.Serializable;
+
+import br.com.sicredi.votacao.model.Pauta;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import java.math.BigInteger;
-
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
-public class VotacaoDTO {
-    private BigInteger idPauta;
-    private String desPauta;
-    private Long qtdSim;
-    private Long qtdNao;
+@Builder
+public class VotacaoDTO implements Serializable{
+	private static final long serialVersionUID = -6178565792109945596L;
+	
+	private Pauta pauta;
+    private Integer qtdSim;
+    private Integer qtdNao;
+    private Integer totalVotos;
+	private Integer totalSessoes;
 }
