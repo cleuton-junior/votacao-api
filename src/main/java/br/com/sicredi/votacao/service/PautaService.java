@@ -5,24 +5,21 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.sicredi.votacao.dto.PautaDTO;
 import br.com.sicredi.votacao.exception.PautaNotFoundException;
 import br.com.sicredi.votacao.model.Pauta;
 import br.com.sicredi.votacao.repository.PautaRepository;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 @Service
 public class PautaService {
-
-	@Autowired
-	private PautaRepository pautaRepository;
-	@Autowired
-	private VotoService votoService;
-	@Autowired
-	private SessaoService sessaoService;
-	@Autowired
+	
+	private PautaRepository pautaRepository;	
+	private VotoService votoService;	
+	private SessaoService sessaoService;	
     private ModelMapper modelMapper;
 
 	public Pauta criar(PautaDTO pautaDTO) {
@@ -44,15 +41,15 @@ public class PautaService {
 				.collect(Collectors.toList());
 	}
 	
-	public void delete(Long id) {
+	public void excluir(Long id) {
 		Optional<Pauta> pautaOpt = pautaRepository.findById(id);
 		if (!pautaOpt.isPresent()) {
 			throw new PautaNotFoundException();
 		}
 
+		sessaoService.excluirByPautaId(id);
+		votoService.excluirByPautaId(id);
 		pautaRepository.delete(pautaOpt.get());
-		sessaoService.deleteByPautaId(id);
-		votoService.deleteByPautaId(id);
 	}
 
 }

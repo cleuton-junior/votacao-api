@@ -2,6 +2,7 @@ package br.com.sicredi.votacao.resource;
 
 import java.net.URI;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,17 +39,13 @@ public class VotoResource {
 	}
 
 	@ApiOperation(value = "Criar Voto")
-	@PostMapping
-	public ResponseEntity<?> criarVoto(@RequestBody VotoDTO votoDto) throws Exception {
+	@PostMapping("sessao/{idSessao}")
+	public ResponseEntity<?> criarVoto(@PathVariable Long idSessao, @RequestBody VotoDTO votoDto) throws Exception {
 		try {
-			Voto voto = votoService.criarVoto(votoDto);
+			Voto voto = votoService.criarVoto(idSessao, votoDto);
 			return ResponseEntity.created(new URI(String.format("%d", voto.getId()))).build();
-		} catch (VotoExistsException e) {
-			return new ResponseEntity<>(e.getCode(), e.getStatus());
-		} catch (InvalidCpfException e) {
-			return new ResponseEntity<>(e.getCode(), e.getStatus());
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+		} catch (IllegalArgumentException | TimeoutException | InvalidCpfException | VotoExistsException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 
 		}
 	}
@@ -64,19 +61,19 @@ public class VotoResource {
         }
 	}
 	
-	@ApiOperation(value = "Retorna Voto por sessao")
+	@ApiOperation(value = "Retorna Voto por Pauta")
 	@GetMapping("/pautas/{id}")
 	@ResponseStatus(code = HttpStatus.OK)
-	public List<VotoDTO> findVotoBySessaoId(@PathVariable Long id) {
-		return votoService.findVotosByPautaId(id);
+	public List<VotoDTO> retornaVotoBySessaoId(@PathVariable Long id) {
+		return votoService.retornaVotosByPautaId(id);
 	}
 
 	
 	@ApiOperation(value = "Excluir Voto")
 	@DeleteMapping("/{id}")
-	public ResponseEntity<?> delete(@PathVariable Long id){
+	public ResponseEntity<?> excluirVoto(@PathVariable Long id){
 		try {
-			votoService.delete(id);
+			votoService.excluirVoto(id);
 			return new ResponseEntity<>("Exclusão do voto realizado com sucesso", HttpStatus.OK);
 		} catch (VotoNotFoundException e) {
 			return new ResponseEntity<>(e.getCode(), e.getStatus());

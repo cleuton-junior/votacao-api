@@ -6,9 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 import br.com.sicredi.votacao.dto.SessaoDTO;
 import br.com.sicredi.votacao.exception.SessaoNotFoundException;
@@ -16,26 +14,25 @@ import br.com.sicredi.votacao.model.Pauta;
 import br.com.sicredi.votacao.model.Sessao;
 import br.com.sicredi.votacao.repository.PautaRepository;
 import br.com.sicredi.votacao.repository.SessaoRepository;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 @Service
 public class SessaoService {
 
-	@Autowired
     private SessaoRepository sessaoRepository;
-	@Autowired
     private PautaRepository pautaRepository;
-	@Autowired
     private ModelMapper modelMapper;
 
-    public List<Sessao> listarSessoes() {
-        return sessaoRepository.findAll();
+    public List<SessaoDTO> listarSessoes() {
+        return sessaoRepository.findAll().stream().map(sessao -> modelMapper.map(sessao, SessaoDTO.class))
+				.collect(Collectors.toList());
     }
 
 	public Sessao criarSessao(SessaoDTO sessaoDTO) {
 		Optional<Pauta> findById = pautaRepository.findById(sessaoDTO.getIdPauta());
 		if (!findById.isPresent()) {
-			Assert.isNull(findById, "Pauta não encontrada");
-			return null;
+			throw new IllegalArgumentException("Pauta não encontrada.");
 		}
 		Sessao sessao = modelMapper.map(sessaoDTO, Sessao.class);
 		sessao.setPauta(findById.get());
@@ -55,7 +52,7 @@ public class SessaoService {
 
     }
 
-    public void delete(Long id) {
+    public void excluir(Long id) {
         Optional<Sessao> sessaoById = sessaoRepository.findById(id);
         if (!sessaoById.isPresent()) {
         	throw new SessaoNotFoundException();
@@ -63,7 +60,7 @@ public class SessaoService {
         sessaoRepository.delete(sessaoById.get());
     }
 
-    void deleteByPautaId(Long id) {
+    public void excluirByPautaId(Long id) {
         Optional<List<Sessao>> sessoes = sessaoRepository.findByPautaId(id);
         sessoes.ifPresent(sessaoList -> sessaoList.forEach(sessaoRepository::delete));
     }
@@ -77,12 +74,12 @@ public class SessaoService {
 		return dto;
 	}
 
-    public List<SessaoDTO> retornaSessaoPorPautaId(Long pautaId) {
-    	Optional<List<Sessao>> sessoes = sessaoRepository.findByPautaId(pautaId);
-        if(!sessoes.isPresent() || sessoes.get().isEmpty()){
+    public SessaoDTO retornaSessaoPorPautaId(Long idSessao, Long pautaId) {
+    	Optional<Sessao> sessao = sessaoRepository.findByIdAndPautaId(idSessao, pautaId);
+        if(!sessao.isPresent()){
         	throw new SessaoNotFoundException();
         }
-        return sessoes.get().stream().map(sessao -> modelMapper.map(sessao, SessaoDTO.class))
-				.collect(Collectors.toList());
+        
+        return modelMapper.map(sessao.get(), SessaoDTO.class);
     }
 }

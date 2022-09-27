@@ -60,10 +60,10 @@ public class PautaResource {
     }
 	
 	@ApiOperation(value = "Excluir Pauta")
-	@DeleteMapping("v1/pautas/{id}")
-	public ResponseEntity<?> delete(@PathVariable Long id) {
+	@DeleteMapping("/{id}")
+	public ResponseEntity<?> excluirPauta(@PathVariable Long id) {
 		try {
-			pautaService.delete(id);
+			pautaService.excluir(id);
 			return new ResponseEntity<>("Exclusão da pauta realizado com sucesso", HttpStatus.OK);
 		} catch (PautaNotFoundException e) {
 			return new ResponseEntity<>(e.getCode(), e.getStatus());

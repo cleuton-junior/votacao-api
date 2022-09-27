@@ -67,10 +67,10 @@ public class SessaoResource {
 	}
 	
 	@ApiOperation(value = "Retorna Sessao por Pauta")
-	@GetMapping("/pautas/{idPauta}")
-	public ResponseEntity<?> retornaSessaoPorPautaId(@PathVariable Long idPauta) {
+	@GetMapping("/{idSessao}/pautas/{idPauta}")
+	public ResponseEntity<?> retornaSessaoPorPautaId(@PathVariable Long idSessao, @PathVariable Long idPauta) {
 		try {
-			List<SessaoDTO> sessoes = sessaoService.retornaSessaoPorPautaId(idPauta);
+			SessaoDTO sessoes = sessaoService.retornaSessaoPorPautaId(idSessao, idPauta);
 			return ResponseEntity.ok(sessoes);
 		} catch (SessaoNotFoundException e) {
 			return new ResponseEntity<>(e.getCode(), e.getStatus());
@@ -79,9 +79,9 @@ public class SessaoResource {
 
 	@ApiOperation(value = "Excluir Sessao")
 	@DeleteMapping("/{id}")
-	public ResponseEntity<?> delete(@PathVariable Long id) {
+	public ResponseEntity<?> excluirSessao(@PathVariable Long id) {
 		try {
-			sessaoService.delete(id);
+			sessaoService.excluir(id);
 			return new ResponseEntity<>("Exclusão da sessão realizado com sucesso", HttpStatus.OK);
 		} catch (SessaoNotFoundException e) {
 			return new ResponseEntity<>(e.getCode(), e.getStatus());
